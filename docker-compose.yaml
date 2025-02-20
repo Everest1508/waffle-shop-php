@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:5.7
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: waffle_shop
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  php:
+    image: php:8.2-apache
+    container_name: php-app
+    restart: always
+    volumes:
+      - ./waffel:/var/www/html
+    ports:
+      - "8080:80"
+    command: >
+      bash -c "apt-get update && apt-get install -y libpng-dev libjpeg-dev libfreetype6-dev && 
+      docker-php-ext-configure gd --with-freetype --with-jpeg && 
+      docker-php-ext-install gd mysqli pdo pdo_mysql && 
+      chown -R www-data:www-data /var/www/html && chmod -R 755 /var/www/html && apache2-foreground"
+
+volumes:
+  mysql_data:
